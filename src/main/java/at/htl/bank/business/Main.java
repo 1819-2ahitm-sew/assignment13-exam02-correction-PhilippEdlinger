@@ -23,6 +23,7 @@ public class Main {
   static final String BUCHUNGSDATEI = "buchungen.csv";
   static final String ERGEBNISDATEI = "ergebnis.csv";
 
+  static  ArrayList<BankKonto> konten =  new ArrayList<>();
   
   /**
    * Führen Sie die drei Methoden erstelleKonten, fuehreBuchungenDurch und
@@ -31,7 +32,8 @@ public class Main {
    * @param args
    */
   public static void main(String[] args) {
-
+    erstelleKonten(KONTENDATEI);
+    fuehreBuchungenDurch(BUCHUNGSDATEI);
   }
 
   /**
@@ -45,8 +47,31 @@ public class Main {
    * @param datei KONTENDATEI
    */
   private static void erstelleKonten(String datei) {
+    String lines;
+    String[] linessplit;
+    BankKonto kontos;
 
-        System.out.println("erstelleKonten noch nicht implementiert");
+    try(Scanner sc = new Scanner(new FileReader(datei))) {
+    sc.nextLine();
+    while(sc.hasNextLine()){
+      lines = sc.nextLine();
+      linessplit = lines.split(";");
+
+      if (linessplit[0].equals("Sparkonto")){
+        kontos = new SparKonto(linessplit[1],Double.parseDouble(linessplit[2]), ZINSSATZ);
+        konten.add(kontos);
+      }
+
+      if (linessplit[0].equals("Girokonto")){
+        kontos = new SparKonto(linessplit[1],Double.parseDouble(linessplit[2]), GEBUEHR);
+        konten.add(kontos);
+      }
+    }
+
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    }
+
   }
 
   /**
@@ -64,7 +89,23 @@ public class Main {
    * @param datei BUCHUNGSDATEI
    */
   private static void fuehreBuchungenDurch(String datei) {
-        System.out.println("fuehreBuchungenDurch noch nicht implementiert");
+    String lines;
+    String[] linessplit;
+
+    try(Scanner sc = new Scanner(new FileReader(datei))) {
+        sc.nextLine();
+
+        while(sc.hasNextLine()){
+          lines = sc.nextLine();
+          linessplit = lines.split(";");
+
+          findeKontoPerName(linessplit[0]).abheben(Double.parseDouble(linessplit[2]));
+          findeKontoPerName(linessplit[1]).einzahlen(Double.parseDouble(linessplit[2]));
+        }
+
+      } catch (FileNotFoundException e) {
+        e.printStackTrace();
+      }
   }
 
   /**
@@ -100,7 +141,14 @@ public class Main {
    *         nicht gefunden wird
    */
   public static BankKonto findeKontoPerName(String name) {
-       return null;
+
+    for(int i = 0; i < konten.size(); i++){
+      if(konten.get(i).getName().equals(name)){
+        return konten.get(i);
+      }
+    }
+
+    return null;
   }
 
 }
